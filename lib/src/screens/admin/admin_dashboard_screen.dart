@@ -80,6 +80,15 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/manage_feedback');
+                },
+                style: buttonStyle,
+                child: const Text('Manage Feedbacks'),
+              ),
+              const SizedBox(height: 20),
+
               // View Reports Button
               ElevatedButton(
                 onPressed: () {

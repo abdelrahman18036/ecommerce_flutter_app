@@ -1,4 +1,5 @@
 // lib/src/screens/user/checkout_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
@@ -6,7 +7,8 @@ import '../../providers/products_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/orders_provider.dart';
 import '../../models/order_model.dart';
-import '../../models/order_item.dart'; // Now valid
+import '../../models/order_item.dart';
+import '../user/feedback_screen.dart'; // Import FeedbackScreen
 
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
@@ -82,14 +84,21 @@ class CheckoutScreen extends StatelessWidget {
                   );
 
                   try {
+                    // Place the order
                     await ordersProvider.placeOrder(newOrder);
                     cartProvider.clearCart();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text('Order placed successfully!')),
                     );
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, '/home', (route) => false);
+
+                    // Navigate to Feedback Screen without orderId
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FeedbackScreen(),
+                      ),
+                    );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to place order: $e')),

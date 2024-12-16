@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
 import '../models/product_model.dart';
 import '../models/category_model.dart';
+import '../models/feedback_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -157,5 +158,23 @@ class FirestoreService {
     } catch (e) {
       throw Exception('Failed to fetch best-selling products: $e');
     }
+  }
+
+   Future<String> addFeedback(Map<String, dynamic> data) async {
+    DocumentReference docRef = await _db.collection('feedback').add(data);
+    return docRef.id;
+  }
+
+  // Get All Feedback (for admin)
+  Future<List<FeedbackModel>> getAllFeedback() async {
+    QuerySnapshot snapshot = await _db.collection('feedback').orderBy('date', descending: true).get();
+    return snapshot.docs
+        .map((doc) => FeedbackModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
+  }
+
+  // Delete Feedback (for admin)
+  Future<void> deleteFeedback(String feedbackId) async {
+    await _db.collection('feedback').doc(feedbackId).delete();
   }
 }

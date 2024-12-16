@@ -31,6 +31,7 @@ import '../screens/admin/add_category_screen.dart';
 import '../screens/admin/edit_category_screen.dart';
 import '../screens/admin/reports_screen.dart';
 import '../screens/admin/best_selling_chart_screen.dart';
+import '../screens/admin/manage_feedback_screen.dart';
 
 class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -83,14 +84,9 @@ class AppRoutes {
       case '/order_history':
         return MaterialPageRoute(builder: (_) => const OrderHistoryScreen());
       case '/feedback':
-        // Expecting an orderId (String) as argument
-        if (settings.arguments is String) {
-          final orderId = settings.arguments as String;
-          return MaterialPageRoute(
-            builder: (_) => FeedbackScreen(orderId: orderId),
+        return MaterialPageRoute(
+            builder: (_) => FeedbackScreen(),
           );
-        }
-        return MaterialPageRoute(builder: (_) => const NotFoundScreen());
 
       // Admin Routes
       case '/admin':
@@ -124,6 +120,11 @@ class AppRoutes {
 
       case '/best_selling_chart':
         return MaterialPageRoute(builder: (_) => const BestSellingChartScreen());
+
+        case '/manage_feedback':
+        return MaterialPageRoute(
+          builder: (_) => const ManageFeedbackScreen(),
+        );
 
       // Newly added Admin List Screens
       case '/manage_products':

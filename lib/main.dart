@@ -14,6 +14,8 @@ import 'src/providers/categories_provider.dart';
 import 'src/providers/cart_provider.dart';
 import 'src/providers/orders_provider.dart';
 import 'src/providers/admin_provider.dart';
+import 'src/providers/feedback_provider.dart';
+
 import 'src/providers/search_provider.dart';
 import 'src/screens/auth/auth_wrapper.dart'; 
 
@@ -47,6 +49,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => FeedbackProvider()),
       ],
       child: MaterialApp(
         title: 'My E-commerce App',
