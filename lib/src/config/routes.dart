@@ -25,6 +25,8 @@ import '../screens/user/search_results_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/add_product_screen.dart';
 import '../screens/admin/edit_product_screen.dart';
+import '../screens/admin/product_list_screen.dart'; // Newly added
+import '../screens/admin/category_list_screen.dart'; // Newly added
 import '../screens/admin/add_category_screen.dart';
 import '../screens/admin/edit_category_screen.dart';
 import '../screens/admin/reports_screen.dart';
@@ -122,6 +124,12 @@ class AppRoutes {
 
       case '/best_selling_chart':
         return MaterialPageRoute(builder: (_) => const BestSellingChartScreen());
+
+      // Newly added Admin List Screens
+      case '/manage_products':
+        return MaterialPageRoute(builder: (_) => const MangeProductListScreen());
+      case '/manage_categories':
+        return MaterialPageRoute(builder: (_) => const CategoryListScreen());
 
       default:
         return MaterialPageRoute(builder: (_) => const NotFoundScreen());

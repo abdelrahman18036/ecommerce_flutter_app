@@ -1,4 +1,5 @@
 // lib/src/screens/admin/admin_dashboard_screen.dart
+
 import 'package:flutter/material.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -49,6 +50,16 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20), // Spacing between buttons
 
+              // Manage Products Button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/manage_products');
+                },
+                style: buttonStyle,
+                child: const Text('Manage Products'),
+              ),
+              const SizedBox(height: 20),
+
               // Add Category Button
               ElevatedButton(
                 onPressed: () {
@@ -56,6 +67,16 @@ class AdminDashboardScreen extends StatelessWidget {
                 },
                 style: buttonStyle,
                 child: const Text('Add Category'),
+              ),
+              const SizedBox(height: 20),
+
+              // Manage Categories Button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/manage_categories');
+                },
+                style: buttonStyle,
+                child: const Text('Manage Categories'),
               ),
               const SizedBox(height: 20),
 

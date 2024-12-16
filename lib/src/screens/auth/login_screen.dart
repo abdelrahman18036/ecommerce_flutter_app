@@ -1,4 +1,5 @@
 // lib/src/screens/auth/login_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -98,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: isLoading ? null : () async {
                   setState(() { isLoading = true; });
                   try {
-                    await auth.login(emailCtrl.text.trim(), passCtrl.text.trim());
+                    await auth.login(emailCtrl.text.trim(), passCtrl.text.trim(), rememberMe);
                     if (auth.isLoggedIn) {
                       Navigator.pushReplacementNamed(context, '/home');
                     }

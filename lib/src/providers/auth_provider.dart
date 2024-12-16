@@ -1,7 +1,9 @@
 // lib/src/providers/auth_provider.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart'; // Import the UserModel
 
 class AuthProvider extends ChangeNotifier {
@@ -10,9 +12,11 @@ class AuthProvider extends ChangeNotifier {
 
   UserModel? _currentUser; // Use UserModel instead of User
   bool _isAdmin = false;
+  bool _isLoading = true; // To track loading state
 
   UserModel? get currentUser => _currentUser;
   bool get isAdmin => _isAdmin;
+  bool get isLoading => _isLoading;
 
   AuthProvider() {
     // Listen for auth state changes
@@ -23,6 +27,7 @@ class AuthProvider extends ChangeNotifier {
       } else {
         await _loadUserData(user.uid);
       }
+      _isLoading = false; // Finished loading
       notifyListeners();
     });
   }
@@ -63,11 +68,14 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Login Method
-  Future<void> login(String email, String password) async {
+  // Login Method with rememberMe
+  Future<void> login(String email, String password, bool rememberMe) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      // _authStateChanges listener will handle loading user data
+
+      // Save rememberMe state
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('rememberMe', rememberMe);
     } catch (e) {
       throw Exception('Login Failed: $e');
     }
@@ -77,6 +85,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     try {
       await _auth.signOut();
+
+      // Clear rememberMe state
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('rememberMe', false);
+
       _currentUser = null;
       _isAdmin = false;
       notifyListeners();
@@ -129,7 +142,7 @@ class AuthProvider extends ChangeNotifier {
       throw Exception('Update Profile Failed: $e');
     }
   }
-  
+
   bool get isLoggedIn => currentUser != null;
 
   // Private method to load user data from Firestore

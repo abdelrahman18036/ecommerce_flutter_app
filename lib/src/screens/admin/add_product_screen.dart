@@ -1,4 +1,5 @@
 // lib/src/screens/admin/add_product_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
@@ -76,6 +77,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   
   @override
   Widget build(BuildContext context) {
+    // Optionally, fetch categories to populate a dropdown
     final admin = Provider.of<AdminProvider>(context, listen: false);
     
     return Scaffold(

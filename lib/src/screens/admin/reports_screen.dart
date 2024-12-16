@@ -1,7 +1,9 @@
 // lib/src/screens/admin/reports_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
+import '../../models/order_model.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -11,23 +13,55 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
-  DateTime _selectedDate = DateTime.now();
-  List<Map<String, dynamic>> _reports = [];
+  List<OrderModel> _orders = [];
   bool _isLoading = false;
-  
-  Future<void> _fetchReports() async {
+  String _errorMessage = '';
+  DateTime _selectedDate = DateTime.now();
+
+  // Fetch all orders initially
+  Future<void> _fetchAllOrders() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = '';
     });
     try {
       final adminProvider = Provider.of<AdminProvider>(context, listen: false);
-      final reports = await adminProvider.getReportByDate(_selectedDate);
+      final orders = await adminProvider.getAllOrders();
       setState(() {
-        _reports = reports;
+        _orders = orders;
       });
     } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to fetch orders: $e';
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch reports: $e')),
+        SnackBar(content: Text(_errorMessage)),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Fetch orders based on selected date
+  Future<void> _fetchOrdersByDate() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+    try {
+      final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+      final orders = await adminProvider.getOrdersByDate(_selectedDate);
+      setState(() {
+        _orders = orders;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to fetch orders by date: $e';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage)),
       );
     } finally {
       setState(() {
@@ -39,14 +73,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchReports();
+    _fetchAllOrders();
   }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reports'),
+        title: const Text('User Order Histories'),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: const TextStyle(
@@ -60,6 +94,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Date Selection Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -85,7 +120,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       setState(() {
                         _selectedDate = picked;
                       });
-                      await _fetchReports();
+                      await _fetchOrdersByDate();
                     }
                   },
                   child: const Text('Select Date'),
@@ -95,36 +130,57 @@ class _ReportsScreenState extends State<ReportsScreen> {
             const SizedBox(height: 16),
             _isLoading
                 ? const CircularProgressIndicator()
-                : _reports.isEmpty
-                    ? const Text(
-                        'No reports available for the selected date.',
-                        style: TextStyle(color: Colors.white54, fontSize: 16),
-                      )
-                    : Expanded(
-                        child: ListView.builder(
-                          itemCount: _reports.length,
-                          itemBuilder: (context, index) {
-                            final report = _reports[index];
-                            return Card(
-                              color: Colors.grey[900],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              margin: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: ListTile(
-                                title: Text(
-                                  report['title'] ?? 'Report',
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  report['content'] ?? '',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ),
-                            );
-                          },
+                : _errorMessage.isNotEmpty
+                    ? Center(
+                        child: Text(
+                          _errorMessage,
+                          style: const TextStyle(color: Colors.red, fontSize: 16),
                         ),
-                      ),
+                      )
+                    : _orders.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No orders found.',
+                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                            ),
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                              itemCount: _orders.length,
+                              itemBuilder: (context, index) {
+                                final order = _orders[index];
+                                return Card(
+                                  color: Colors.grey[900],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                  child: ExpansionTile(
+                                    title: Text(
+                                      'Order ID: ${order.id}',
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Text(
+                                      'User ID: ${order.userId}\nTotal: \$${order.total.toStringAsFixed(2)}',
+                                      style: const TextStyle(color: Colors.white70),
+                                    ),
+                                    children: order.items.map((item) {
+                                      return ListTile(
+                                        title: Text(
+                                          'Product ID: ${item.productId}',
+                                          style: const TextStyle(color: Colors.white),
+                                        ),
+                                        trailing: Text(
+                                          'Quantity: ${item.quantity}',
+                                          style: const TextStyle(color: Colors.white70),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 // lib/src/screens/user/home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -37,11 +38,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-    final productsProvider = Provider.of<ProductsProvider>(context);
-    final categoriesProvider = Provider.of<CategoriesProvider>(context);
 
-    final products = productsProvider.products;
-    final categories = categoriesProvider.categories;
+    // If the user is an admin, add the Admin screen
+    if (auth.isAdmin && _screens.length == 3) {
+      _screens.add(const AdminDashboardScreen());
+    }
 
     List<BottomNavigationBarItem> navItems = [
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -54,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icon(Icons.admin_panel_settings),
         label: 'Admin',
       ));
-      _screens.add(const AdminDashboardScreen());
     }
 
     return Scaffold(
@@ -84,25 +84,30 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final productsProvider = Provider.of<ProductsProvider>(context);
+    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
     final categoriesProvider = Provider.of<CategoriesProvider>(context);
 
-    final products = productsProvider.products;
+    final products = Provider.of<ProductsProvider>(context).products;
     final categories = categoriesProvider.categories;
 
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(8.0),
-        children: [
-          // Search Bar
-          const CustomSearchBar(),
-          const SizedBox(height: 10),
-          // Categories Section
-          CategoriesSection(categories: categories),
-          const SizedBox(height: 10),
-          // Products Grid
-          ProductsGrid(products: products),
-        ],
+    return RefreshIndicator(
+      onRefresh: () async {
+        await productsProvider.loadProducts();
+      },
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(8.0),
+          children: [
+            // Search Bar
+            const CustomSearchBar(),
+            const SizedBox(height: 10),
+            // Categories Section
+            CategoriesSection(categories: categories),
+            const SizedBox(height: 10),
+            // Products Grid
+            ProductsGrid(products: products),
+          ],
+        ),
       ),
     );
   }
