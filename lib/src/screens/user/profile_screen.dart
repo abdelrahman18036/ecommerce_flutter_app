@@ -23,10 +23,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Access the AuthProvider to get the current authenticated user.
+    // listen: false means this widget won't rebuild if AuthProvider changes.
     final auth = Provider.of<AuthProvider>(context, listen: false);
+        
+    // Get the current user from the AuthProvider.
     final user = auth.currentUser;
     if (user != null) {
+      // Set the _nameController's text to the user's name, or an empty string if the name is null.
       _nameController.text = user.name ?? '';
+      
       _selectedBirthDate = user.birthDate;
     }
   }
