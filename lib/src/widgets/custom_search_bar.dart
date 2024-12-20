@@ -73,24 +73,32 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   // Function to handle barcode scanning
   Future<void> _handleBarcodeScan(List<ProductModel> products) async {
-    String barcode = await _barcodeService.scanBarcode();
+  // Scan QR or barcode
+  String barcode = await _barcodeService.scanBarcode();
 
-    if (barcode != '-1') { // '-1' indicates cancellation
-      final searchProvider = Provider.of<SearchProvider>(context, listen: false);
-      searchProvider.searchByBarcode(products, barcode).then((_) {
-        Navigator.pushNamed(
-          context,
-          '/search_results',
-          // Removed arguments
-        );
-      });
-    } else {
-      // User cancelled the scan
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Barcode scan cancelled.')),
+  if (barcode != '-1') { // '-1' indicates cancellation
+    // Insert the scanned QR code text into the search bar
+    _searchController.text = barcode.trim();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('QR Code: $barcode')),
+    );
+    // Optionally trigger a search (if needed)
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
+    searchProvider.searchByText(products, barcode.trim()).then((_) {
+      Navigator.pushNamed(
+        context,
+        '/search_results',
+        // Removed arguments
       );
-    }
+    });
+  } else {
+    // Handle cancellation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Barcode scan cancelled.')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
